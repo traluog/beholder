@@ -1,0 +1,52 @@
+---
+- name: Configurando o elastic
+  hosts: 'elasticsearch'
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: Copy elastic config
+      copy:
+        src: ./apps/elasticsearch/files/elasticsearch.yml
+        dest: /usr/share/elasticsearch/config/elasticsearch.yml
+        owner: elasticsearch
+        group: root
+        mode: u=rw,g=rw
+  
+
+- name: Configurando o kibana
+  hosts: 'kibana'
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: Copy kibana config
+      copy:
+        src: ./apps/kibana/files/kibana.yml
+        dest: /usr/share/kibana/config/kibana.yml
+        owner: kibana
+        group: root
+        mode: u=rw,g=rw,o=r
+
+
+- name: Configurando o logstash
+  hosts: 'logstash'
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: Copy logstash config
+      copy:
+        src: ./apps/logstash/files/logstash.conf
+        dest: /usr/share/logstash/pipeline/logstash.conf
+        owner: logstash
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Copy logstash parameters
+      copy:
+        src: ./apps/logstash/files/logstash.yml
+        dest: /usr/share/logstash/config/logstash.yml
+        owner: logstash
+        group: root
+        mode: u=rw,g=r,o=r

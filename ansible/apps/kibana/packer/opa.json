@@ -1,0 +1,38 @@
+{
+  "variables":{
+      "ansible_host": "default",
+      "ansible_connection": "docker",
+      "hash_commit": "{{env `HASH_COMMIT`}}",
+      "msg_commit": "{{env `MSG_COMMIT`}}"
+  },
+
+  "builders": [{
+      "type": "docker",
+      "image": "jrgoulart/kibana:7.6.1-beta3",
+      "commit": true,
+      "changes": [
+        "ENTRYPOINT [\"/usr/local/bin/dumb-init\", \"--\"]",
+        "CMD [\"/usr/local/bin/kibana-docker\",\"--allow-root\"]"
+      ],
+      "run_command": ["-d", "-i", "-t", "--name", "{{user `ansible_host`}}", "{{.Image}}", "/bin/bash"]
+  }],
+
+  "provisioners":[{
+      "type": "ansible",
+      "groups": [ "kibana" ],
+      "playbook_file": "./ansible/playbook.yml",
+      "extra_arguments": [
+          "--extra-vars",
+          "ansible_host={{user `ansible_host`}} ansible_connection={{user `ansible_connection`}}"
+        ]
+  }],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "beholder/{{user `msg_commit`}}",
+        "tag": "{{user `hash_commit`}}"
+      }
+    ]
+  ]
+}

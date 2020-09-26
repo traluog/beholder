@@ -1,0 +1,42 @@
+{
+    "variables":{
+        "ansible_host": "elastic-build",
+        "ansible_connection": "docker",
+        "hash_commit": "{{env `HASH_COMMIT`}}",
+        "msg_commit": "{{env `MSG_COMMIT`}}"
+    },
+
+    "builders": [{
+        "type": "docker",
+        "image": "jrgoulart/elasticsearch:7.6.1-beta2",
+        "commit": true,
+        "changes": [
+          "ENTRYPOINT /usr/local/bin/docker-entrypoint.sh",
+          "CMD [\"eswrapper\"]"
+        ],
+        "run_command": ["-d", "-i", "-t", "--name", "{{user `ansible_host`}}", "{{.Image}}", "/bin/bash"]
+    }],
+
+    "provisioners":[{
+        "type": "shell",
+        "script": "./ansible/apps/elasticsearch/scripts/install_python.sh"
+    },
+    {
+        "type": "ansible",
+        "groups": [ "elasticsearch" ],
+        "playbook_file": "./ansible/playbook.yml",
+        "extra_arguments": [
+            "--extra-vars",
+            "ansible_host={{user `ansible_host`}} ansible_connection={{user `ansible_connection`}}"
+          ]
+    }],
+    "post-processors": [
+      [
+        {
+          "type": "docker-tag",
+          "repository": "beholder/{{user `msg_commit`}}",
+          "tag": "{{user `hash_commit`}}"
+        }
+      ]
+    ]
+  }
