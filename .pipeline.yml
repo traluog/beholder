@@ -1,0 +1,54 @@
+---
+    kind: pipeline
+    type: docker
+    name: validate-tests
+        
+    steps:
+    - name: validate code
+      image: hashicorp/packer:light
+      commands:
+        - apk -U add ansible
+        - packer validate ansible/apps/${DRONE_COMMIT_MESSAGE}/packer/*.json
+    
+    - name: build
+      image: hashicorp/packer:light
+      environment:
+        HASH_COMMIT: ${DRONE_COMMIT:0:8}
+        MSG_COMMIT: ${DRONE_COMMIT_MESSAGE}
+      volumes:
+      - name: cache
+        path: /var/run/docker.sock
+      commands:
+        - apk update && apk add docker-cli
+        - apk -U add ansible
+        - packer build ansible/apps/${DRONE_COMMIT_MESSAGE}/packer/opa.json 
+    
+    - name: deploy
+      image: hashicorp/terraform:0.12.28
+      environment:
+        AWS_ACCESS_KEY_ID:
+          from_secret: AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY:
+          from_secret: AWS_SECRET_ACCESS_KEY
+      commands:
+        - terraform init ansible/apps/${DRONE_COMMIT_MESSAGE}/terraform/
+        - terraform plan -var hash_commit="${DRONE_COMMIT:0:8}" -out ${DRONE_COMMIT_MESSAGE} ansible/apps/${DRONE_COMMIT_MESSAGE}/terraform/
+        - terraform apply "${DRONE_COMMIT_MESSAGE}"
+    
+    - name: notify
+      image: plugins/slack
+      environment:
+        SLACK_TOKEN:
+          from_secret: SLACK_TOKEN
+      settings:
+        channel: SLACK_CHANNEL
+        webhook: https://hooks.slack.com/services/<YOUR WEBHOOK>
+      when:
+        status:
+        - success
+        - failure
+    
+    volumes:
+    - name: cache
+      host:
+        path: /var/run/docker.sock
