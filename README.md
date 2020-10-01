@@ -7,9 +7,15 @@
 <li>Wazuh - OK </li>
 <li>Elastalert - OK </li>
 <li>Praeco - OK </li>
-<li>VulnWhisperer - ... </li>
-<li>Cortex - ... </li>
-<li>TheHive - ... </li>
-<li>MIPS - ... </li>
+<li>VulnWhisperer - configurando... </li>
+<li>Cortex - configurando... </li>
+<li>TheHive - configurando... </li>
+<li>MIPS - configurando... </li>
+<li>Hadoop - em breve </li>
+<li>Hbase - em breve </li>
+<li>Kafka - em breve </li>
+<li>Zookeeper - em breve </li>
+<li>Hive - em breve </li>
+<li>Storm - em breve </li>
 <p><h3>Documentação</h3></p>
 <p> <i>Em elaboração... </i> </p>
