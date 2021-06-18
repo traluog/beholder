@@ -18,4 +18,4 @@
 <li>Hive - em breve </li>
 <li>Storm - em breve </li>
 <p><h3>Documentação</h3></p>
-<p> <i>Em elaboração... </i> </p>
+<p> <i>Em elaboração.... </i> </p>
