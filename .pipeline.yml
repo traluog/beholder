@@ -36,13 +36,15 @@
         - terraform apply "${DRONE_COMMIT_MESSAGE}"
     
     - name: notify
-      image: plugins/slack
+      image: appleboy/drone-telegram
       environment:
-        SLACK_TOKEN:
-          from_secret: SLACK_TOKEN
+        TELEGRAM_TOKEN:
+          from_secret: TELEGRAM_TOKEN
+        TUSER_TOKEN:
+          from_secret: TUSER_TOKEN
       settings:
-        channel: SLACK_CHANNEL
-        webhook: https://hooks.slack.com/services/<YOUR WEBHOOK>
+        token: TELEGRAM_TOKEN
+        to: TUSER_TOKEN
       when:
         status:
         - success
